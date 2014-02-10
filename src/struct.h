@@ -1,17 +1,18 @@
 #ifndef STRUCT
 #define STRUCT
 
-typedef struct animal {
+typedef struct animal Animal;
+struct animal {
 	int rank;
-	int moves_radius:1;
-	int eat:1;
-	int dies_after:5;
-} Animal;
+	int moves_radius;
+	int eat;
+	int dies_after;
+	Animal * next_animal;
+};
 
 typedef struct tile {
 	int qty_grass;
-	Animal * preys;
-	Animal * predators;
+	Animal * animals;
 } Tile;
 
 typedef struct terrain {
