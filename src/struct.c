@@ -88,7 +88,50 @@ int addAnimal(Animal * this_animal, Tile * that_place){
 	}
 }
 
+Animal * removeAnimal(int class, Tile * that_place){
+	Animal * this_animal = NULL;
+	Animal * temp_animal = NULL;
+	
+	// Check if animal is present
+	if(that_place->animals->class == class){
+		// if yes, select the first animal
+		this_animal = that_place->animals;
+		
+		// then remove it from the tile
+		temp_animal = this_animal->next_animal;
+		that_place->animals = temp_animal;
+	}
+		
+	// Return the adress of the selected animal		
+	// If not, return NULL
+	return this_animal;
+}
 
+int moveAnimal(int class, int x, int y, int next_x, int next_y, Field * turf){
+	int result = 0;
+	Tile * start = NULL;
+	Tile * end = NULL;
+	Animal * this_animal = NULL;
+	
+	// Get the adresses of start tile and end tile
+	// Check if they belong to the field
+	if(x < turf->m && y < turf->n && next_x < turf->m && next_y < turf->n){
+		// if yes, remember the references
+		start = turf->array[x][y];
+		end = turf->array[next_x][next_y];
+	
+		// Then remove animal
+		this_animal = removeAnimal(class, start);
+		
+		// if animal is removed
+		if(this_animal != NULL){
+			// add animal to the next place
+			result = addAnimal(this_animal, end);
+		}
+	}
+	
+	return result;
+}
 
 void deleteCharacteristics(Characteristics * my_charact){
 	int i;
@@ -112,7 +155,6 @@ void deleteField(Field * turf){
 	free(turf);
 }
 
-
 void deleteTile(Tile * my_tile){
 	if(my_tile != NULL){
 		deleteAnimal(my_tile->animals);
@@ -126,21 +168,5 @@ void deleteAnimal(Animal * my_animal){
 		free(my_animal);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

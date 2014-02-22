@@ -1,3 +1,4 @@
+
 [file_prefs]
 final_new_line=true
 ensure_convert_new_lines=false
@@ -22,8 +23,12 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=0
-FILE_NAME_0=0;Make;0;16;1;1;0;%2Fhome%2Falain%2Fdocuments%2F_scolaire%2Fdocuments_par_matiere%2Finformatique%2Fecosysteme%2FMakefile;0;4
+current_page=2
+FILE_NAME_0=0;Make;0;16;1;1;0;/home/eleves/rob/sanguine/Informatique/Ecosysteme/Makefile;0
+FILE_NAME_1=0;C;0;16;1;1;0;/home/eleves/rob/sanguine/Informatique/Ecosysteme/ecosysteme.c;0
+FILE_NAME_2=1233;C;0;16;1;1;0;/home/eleves/rob/sanguine/Informatique/Ecosysteme/src/struct.h;0
+FILE_NAME_3=2609;C;0;16;1;1;0;/home/eleves/rob/sanguine/Informatique/Ecosysteme/src/struct.c;0
+FILE_NAME_4=253;C;0;16;1;1;0;/home/eleves/rob/sanguine/Informatique/Ecosysteme/src/days.h;0
 
 [VTE]
 last_dir=/home/alain/documents

@@ -1,7 +1,4 @@
-
-
-#include <stdio.h>
-#include "./src/struct.h"
+#include "./disp/disp.h"
 
 int main()
 {
@@ -18,6 +15,8 @@ int main()
 	
 	// Puts this animal at tile (0,1)
 	is_ok = addAnimal(anitest, Test->array[0][1]);
+	
+	text_disp_field(Test);
 	
 	if(is_ok == 0){
 		// Display its value
