@@ -18,18 +18,18 @@ typedef struct tile {
 	Animal * animals;
 } Tile;
 
-typedef struct field {
-	Tile *** array;
-	int m;
-	int n;
-} Field;
-
 #define NB_CHARACTERISTICS 4
 typedef struct characteristics {
 	int m; // Number of different classes
 	int ** array;	// Relations between class and the other characteristics
 } Characteristics;
 
+typedef struct field {
+	Characteristics *species;
+	Tile *** array;
+	int m;
+	int n;
+} Field;
 
 // Creates a field of size m * n
 Field * createField(int m, int n);
