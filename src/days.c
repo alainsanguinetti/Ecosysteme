@@ -1,9 +1,4 @@
-#include "struct.h"
 #include "days.h"
-#include <time.h>
-#include <stdlib.h>
-
-
 
 
 // Put preys and predators in opposite corners (can be modified if necessary)

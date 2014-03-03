@@ -63,7 +63,7 @@ Animal * createAnimal(int class, Characteristics * species){
 	while (species->array[i][0] != class && i < species->m){
 		i++;
 	}
-	printf("wow : %d\n",species->array[i][0]);
+	// printf("wow : %d\n",species->array[i][0]);
 	new_animal->class = species->array[i][0];
 	
 	new_animal->moves_radius = species->array[i][1];

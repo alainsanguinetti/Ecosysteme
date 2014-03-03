@@ -1,8 +1,13 @@
+#include "./src/days.h"
 #include "./disp/disp.h"
 
 int main()
 {
-	Field * Test = createField(2,2);
+	// Init graphics
+	SDL_Surface * screen = NULL;
+	screen = init_sdl();
+	
+	Field * Test = createField(3,3);
 	int is_ok = 1;
 	
 	Characteristics * test = initCharacteristics(2);
@@ -18,15 +23,17 @@ int main()
 	
 	text_disp_field(Test);
 	
-	if(is_ok == 0){
-		// Display its value
-		printf("%d\n", Test->array[0][1]->animals->class);
-	}
+	//user_disp_field(Test, screen, SDL);
 	
 	deleteCharacteristics(test);
 	
 	deleteField(Test);
+	
+	// End of graphics
+	SDL_FreeSurface(screen);
+	quit_sdl();
 
 	return 0;
 }
+
 

@@ -42,7 +42,7 @@ void text_disp_pos(Field * turf, int x, int y){
 void text_disp_tile(Tile * cell){
 	printf("\tGrass : %d \t", cell->qty_grass);
 	if(cell->animals == NULL){
-		printf("No animals on this tile\n");
+		printf("No animal\n");
 	}else{
 		printf("Specie : %d\n", cell->animals->class);
 	}
@@ -62,6 +62,12 @@ SDL_Surface * init_sdl(){
    
     // This is for text display
 	TTF_Init();
+
+	if(TTF_Init() == -1)
+	{
+		fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
+		exit(EXIT_FAILURE);
+	}
     
     // Setting of the new window
     new_display = SDL_SetVideoMode(WINDOW_SIZE_X, WINDOW_SIZE_Y, COLOR_DEPTH, VIDEO_OPTIONS);
@@ -97,23 +103,30 @@ void disp_pause(){
 // Displays the state of the field
 void sdl_disp_field(Field * turf, SDL_Surface * screen){
 	int i;
+
+	// Initializes TTF_Font
+	TTF_Font * font = TTF_OpenFont("./disp/font/Sansation_Bold.ttf", FONT_SIZE);
+
 	
 	// Blank the window
 	SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 120, 120, 120));
 	
 	// For every line of the field, display it
 	for(i = 0; i < turf->n; i++){
-		sdl_disp_line(turf, screen, i);
+		sdl_disp_line(turf, screen, i, font);
 	}
 	
 	// Update the window
 	SDL_Flip(screen);
+
+	// Close font
+	TTF_CloseFont(font);
 	
 	// Leave it like this
 }
 
 // Displays a line of cell, with SDL
-void sdl_disp_line(Field * turf, SDL_Surface * screen, int i){
+void sdl_disp_line(Field * turf, SDL_Surface * screen, int i, TTF_Font * font){
 	int j;
 	
 	// Calculates the offset
@@ -121,15 +134,14 @@ void sdl_disp_line(Field * turf, SDL_Surface * screen, int i){
 	
 	// For every cell of the line, display it
 	for(j = 0; j < turf->m; j++){
-		sdl_disp_cell(turf, screen, offset, j);
+		sdl_disp_cell(turf, screen, offset, i, j, font);
 	}
 }
 
 // Displays a cell, with SDL
-void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int j){
-	// Font
-	TTF_Font * font = TTF_OpenFont("./font/sansation.ttf", 65);
-	SDL_Surface * text = NULL;
+void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int i, int j, TTF_Font * font){
+	char text_cell[50];			// The text to be written
+	SDL_Surface * text = NULL;	// The surface containing the text to write on the cell
 	SDL_Color black = {0, 0, 0, 255};
 	
 	// Calculates the x offset	
@@ -150,18 +162,32 @@ void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int j){
 	SDL_BlitSurface(cell, NULL, screen, &position);
 	
 	
-	/* Écriture du texte dans la SDL_Surface text en mode Solid */
-    text = TTF_RenderText_Solid(font, "test", black);
-	position.x+=10;
-	position.y+=10;
-	SDL_BlitSurface(text, NULL, screen, &position);
-	
-	
+	/* Write text for the cell */
+		/* About the grass */
+		sprintf(text_cell, "Grass : %d", turf->array[i][j]->qty_grass);
+		text = TTF_RenderText_Solid(font, text_cell, black);
+		position.x+=10;
+		position.y+=10;
+		SDL_BlitSurface(text, NULL, screen, &position);
 
+		SDL_FreeSurface(text);
+
+		
+		/* About the animal */
+		if(turf->array[i][j]->animals == NULL){
+			sprintf(text_cell, "No animal");
+		}else{
+			sprintf(text_cell, "Specie : %d", turf->array[i][j]->animals->class);
+		}
 	
+		text = TTF_RenderText_Solid(font, text_cell, black);
+		position.y+=FONT_SIZE;
+		SDL_BlitSurface(text, NULL, screen, &position);
+
+	/* Free the surfaces */
 	SDL_FreeSurface(text);
 	SDL_FreeSurface(cell);
-		
+
 	fprintf(stderr, "One cell computed\n");
 }
 	

@@ -10,10 +10,11 @@
 		SDL
 	};
 
-	#define WINDOW_SIZE_X 900	// px
-	#define WINDOW_SIZE_Y 900	// px
+	#define WINDOW_SIZE_X 780	// px
+	#define WINDOW_SIZE_Y 400	// px
 	#define COLOR_DEPTH 32	// bits
 	#define VIDEO_OPTIONS SDL_HWSURFACE  //| SDL_NOFRAME	// loading in the video memory and no border nor title
+	#define FONT_SIZE 16	// font size for the display
 
 	
 	// When the user wants to display the field in the specified mode (SDL / text)
@@ -36,10 +37,10 @@
 	void sdl_disp_field(Field * turf, SDL_Surface * screen);
 	
 	// Displays a line of cell, with SDL
-	void sdl_disp_line(Field * turf, SDL_Surface * screen, int i);
+	void sdl_disp_line(Field * turf, SDL_Surface * screen, int i, TTF_Font * font);
 	
 	// Displays a cell, with SDL
-	void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int j);
+	void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int i, int j, TTF_Font * font);
 	
 	// Ends the display
 	void quit_sdl();
