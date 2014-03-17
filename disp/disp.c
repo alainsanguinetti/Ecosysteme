@@ -1,4 +1,8 @@
 #include "./disp.h"
+#include ".././src/days.h"
+
+static TTF_Font * font = NULL;
+static SDL_Surface * cell = NULL;
 
 // When the user wants to display the field in the specified mode (SDL / text)
 void user_disp_field(Field * turf, SDL_Surface * screen, int mode){
@@ -77,6 +81,12 @@ SDL_Surface * init_sdl(){
         exit(EXIT_FAILURE);
     }
 	SDL_WM_SetCaption("Proies - Prédateurs", NULL);
+	
+	// One cell
+	if(!cell){
+		cell = SDL_CreateRGBSurface(SDL_HWSURFACE, (WINDOW_SIZE_X / TURF_M), (WINDOW_SIZE_Y / TURF_N), COLOR_DEPTH, 0, 0, 0, 0);
+		SDL_FillRect(cell, NULL, SDL_MapRGB(new_display->format, 17, 206, 112));
+	}
     
     
 	return new_display;
@@ -103,10 +113,19 @@ void disp_pause(){
 // Displays the state of the field
 void sdl_disp_field(Field * turf, SDL_Surface * screen){
 	int i;
-
+	
+	printf("This field is of size : %d x %d\n", turf->m, turf->n);
+	
 	// Initializes TTF_Font
-	TTF_Font * font = TTF_OpenFont("./disp/font/Sansation_Bold.ttf", FONT_SIZE);
+	if(!font){
+		font = TTF_OpenFont("./disp/font/Sansation_Bold.ttf", FONT_SIZE);
+	}
 
+	if(font == NULL){
+		printf("sdl_disp_field : TTF_font not initialized\n");
+		
+		exit(EXIT_FAILURE);
+	}
 	
 	// Blank the window
 	SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 120, 120, 120));
@@ -119,14 +138,13 @@ void sdl_disp_field(Field * turf, SDL_Surface * screen){
 	// Update the window
 	SDL_Flip(screen);
 
-	// Close font
-	TTF_CloseFont(font);
-	
 	// Leave it like this
 }
 
 // Displays a line of cell, with SDL
 void sdl_disp_line(Field * turf, SDL_Surface * screen, int i, TTF_Font * font){
+	//printf("Displaying line %d\n", i);
+	
 	int j;
 	
 	// Calculates the offset
@@ -140,18 +158,18 @@ void sdl_disp_line(Field * turf, SDL_Surface * screen, int i, TTF_Font * font){
 
 // Displays a cell, with SDL
 void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int i, int j, TTF_Font * font){
+	
+	//printf("Displaying cell %d, %d\n", i, j);
 	char text_cell[50];			// The text to be written
 	SDL_Surface * text = NULL;	// The surface containing the text to write on the cell
 	SDL_Color black = {0, 0, 0, 255};
+	SDL_Color red = {255, 0, 0, 255};
+	SDL_Color color;
 	
 	// Calculates the x offset	
 	int offset_x = j * (WINDOW_SIZE_X / turf->m);
 	
 	// Add a green rectangle to represent grass
-	// Creates it
-	SDL_Surface * cell = NULL;
-	cell = SDL_CreateRGBSurface(SDL_HWSURFACE, (WINDOW_SIZE_X / turf->m), (WINDOW_SIZE_Y / turf->n), COLOR_DEPTH, 0, 0, 0, 0);
-	SDL_FillRect(cell, NULL, SDL_MapRGB(screen->format, 17, 206, 112));
 	
 	// This is the green rectangle position
 	SDL_Rect position;
@@ -164,37 +182,43 @@ void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int i, int 
 	
 	/* Write text for the cell */
 		/* About the grass */
-		sprintf(text_cell, "Grass : %d", turf->array[i][j]->qty_grass);
+		sprintf(text_cell, "Grss : %d", turf->array[i][j]->qty_grass);
 		text = TTF_RenderText_Solid(font, text_cell, black);
 		position.x+=10;
 		position.y+=10;
 		SDL_BlitSurface(text, NULL, screen, &position);
 
-		SDL_FreeSurface(text);
-
-		
 		/* About the animal */
 		if(turf->array[i][j]->animals == NULL){
-			sprintf(text_cell, "No animal");
+			 //sprintf(text_cell, "None");
 		}else{
-			sprintf(text_cell, "Specie : %d", turf->array[i][j]->animals->class);
+			/* The color depends on the first digit of the class of the animal */
+			if(turf->array[i][j]->animals->class / 100 == 2){
+				color = red;
+			}else{
+				color = black;
+			}
+			
+			sprintf(text_cell, "Spc : %d", turf->array[i][j]->animals->class);
+			text = TTF_RenderText_Solid(font, text_cell, color);
+			position.y+=FONT_SIZE;
+			SDL_BlitSurface(text, NULL, screen, &position);
 		}
-	
-		text = TTF_RenderText_Solid(font, text_cell, black);
-		position.y+=FONT_SIZE;
-		SDL_BlitSurface(text, NULL, screen, &position);
-
-	/* Free the surfaces */
+		
 	SDL_FreeSurface(text);
-	SDL_FreeSurface(cell);
-
-	fprintf(stderr, "One cell computed\n");
+	
 }
 	
 
 
 // Ends the display
 void quit_sdl(){
+	
+	// Close cell
+	SDL_FreeSurface(cell);
+	
+	// Close font
+	TTF_CloseFont(font);
 	
 	// End of TTF
 	TTF_Quit();

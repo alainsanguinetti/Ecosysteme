@@ -57,40 +57,41 @@ Characteristics * initCharacteristics(int n){
 }
 
 Animal * createAnimal(int class, Characteristics * species){
-	Animal * new_animal = NULL;
-	new_animal = (Animal *)malloc(sizeof(Animal));
-	int i = 0;
-	while (species->array[i][0] != class && i < species->m){
-		i++;
+	if(species != NULL){
+		Animal * new_animal = NULL;
+		new_animal = (Animal *)malloc(sizeof(Animal));
+		int i = 0;
+		while (species->array[i][0] != class && i < species->m){
+			i++;
+		}
+		// printf("wow : %d\n",species->array[i][0]);
+		new_animal->class = species->array[i][0];
+		
+		new_animal->moves_radius = species->array[i][1];
+		new_animal->eat = species->array[i][2];
+		new_animal->dies_after = species->array[i][3];
+		return new_animal;
+	}else{
+		return NULL;
 	}
-	// printf("wow : %d\n",species->array[i][0]);
-	new_animal->class = species->array[i][0];
-	
-	new_animal->moves_radius = species->array[i][1];
-	new_animal->eat = species->array[i][2];
-	new_animal->dies_after = species->array[i][3];
-	return new_animal;
 }
 
 int addAnimal(Animal * this_animal, Tile * that_place){
 	
-	// Check if tile is not occupied by animals of an other specie
-	if(that_place->animals == NULL || that_place->animals->class == this_animal->class){
+	// Check if tile is available
+	if(that_place->animals == NULL){
 
 		// if not, tile points to us and we point to what was there
-		this_animal->next_animal = that_place->animals;
 		that_place->animals = this_animal;
 
-		return 0;
-	}else{
-	// else
 		return 1;
+	}else{
+		return 0;
 	}
 }
 
 Animal * removeAnimal(int class, Tile * that_place){
 	Animal * this_animal = NULL;
-	Animal * temp_animal = NULL;
 	
 	// Check if animal is present
 	if(that_place->animals->class == class){
@@ -98,8 +99,7 @@ Animal * removeAnimal(int class, Tile * that_place){
 		this_animal = that_place->animals;
 		
 		// then remove it from the tile
-		temp_animal = this_animal->next_animal;
-		that_place->animals = temp_animal;
+		that_place->animals = NULL;
 	}
 		
 	// Return the adress of the selected animal		
@@ -113,9 +113,17 @@ int moveAnimal(int class, int x, int y, int next_x, int next_y, Field * turf){
 	Tile * end = NULL;
 	Animal * this_animal = NULL;
 	
+	//printf("Trying to move an animal of class %d, from tile %d, %d to tile %d, %d\n", class, x, y, next_x, next_y);
+	
 	// Get the adresses of start tile and end tile
 	// Check if they belong to the field
-	if(x < turf->m && y < turf->n && next_x < turf->m && next_y < turf->n){
+	if(x < turf->m 
+			&& y < turf->n 
+			&& next_x < turf->m 
+			&& next_y < turf->n 
+			&& next_x >= 0 
+			&& next_y >= 0){
+				
 		// if yes, remember the references
 		start = turf->array[x][y];
 		end = turf->array[next_x][next_y];
@@ -127,9 +135,15 @@ int moveAnimal(int class, int x, int y, int next_x, int next_y, Field * turf){
 		if(this_animal != NULL){
 			// add animal to the next place
 			result = addAnimal(this_animal, end);
+			
+			if(result == 0){
+				addAnimal(this_animal, start);
+			}else{
+				//printf("Moved an animal\n");
+			}
 		}
 	}
-	
+
 	return result;
 }
 
@@ -164,7 +178,7 @@ void deleteTile(Tile * my_tile){
 
 void deleteAnimal(Animal * my_animal){
 	if(my_animal != NULL){
-		deleteAnimal(my_animal->next_animal);
+		printf("Deleting animal of class %d\n", my_animal->class);
 		free(my_animal);
 	}
 }

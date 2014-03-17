@@ -10,8 +10,8 @@
 		SDL
 	};
 
-	#define WINDOW_SIZE_X 780	// px
-	#define WINDOW_SIZE_Y 400	// px
+	#define WINDOW_SIZE_X 900	// px
+	#define WINDOW_SIZE_Y 720	// px
 	#define COLOR_DEPTH 32	// bits
 	#define VIDEO_OPTIONS SDL_HWSURFACE  //| SDL_NOFRAME	// loading in the video memory and no border nor title
 	#define FONT_SIZE 16	// font size for the display

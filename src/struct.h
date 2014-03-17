@@ -10,7 +10,6 @@ struct animal {
 	int moves_radius;
 	int eat;			// Number of lower rank animals eaten by day
 	int dies_after;		// Number of fasting days in a row allowed
-	Animal * next_animal;
 };
 
 typedef struct tile {
@@ -25,7 +24,7 @@ typedef struct characteristics {
 } Characteristics;
 
 typedef struct field {
-	Characteristics *species;
+	Characteristics * species;
 	Tile *** array;
 	int m;
 	int n;
@@ -48,6 +47,9 @@ Animal * removeAnimal(int class, Tile * that_place);
 
 // Moves this animal from position x y to position next_x, next_y on field "turf". Returns 1 in case of success
 int moveAnimal(int class, int x, int y, int next_x, int next_y, Field * turf);
+
+// Counts the animals
+void countAnimals(Field * turf);
 
 // Functions to delete the structures
 void deleteCharacteristics(Characteristics * my_charact);

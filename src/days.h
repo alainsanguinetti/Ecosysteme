@@ -2,16 +2,19 @@
 	#define DAYS_H
 	
 	#include "struct.h"
+	#include "../disp/disp.h"
 	#include <time.h>
 
-	#define PUBERTY 2
+	#define PUBERTY 3
+	#define TURF_M 10
+	#define TURF_N 10
 
 	// Set the initial state of the field
 	void initial_state (Field *turf, Characteristics * species);
 	//Moves Preys and Predators
 	void Move_Bitch_GetOut_The_Way(Field *turf);
 	// Frames the simulation : simulates nb_days days
-	void days_simulation(int nb_days, Field * turf);
+	void days_simulation(int nb_days, Field * turf, SDL_Surface * screen);
 	// Simulates a day
 	void day_simulation(Field * turf);
 	// Make grass grow everywhere on the field
