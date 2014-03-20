@@ -3,6 +3,9 @@
 
 static TTF_Font * font = NULL;
 static SDL_Surface * cell = NULL;
+	SDL_Color black = {0, 0, 0, 255};
+	SDL_Color red = {255, 0, 0, 255};
+	SDL_Color yellow = {255, 255, 0, 255};
 
 // When the user wants to display the field in the specified mode (SDL / text)
 void user_disp_field(Field * turf, SDL_Surface * screen, int mode){
@@ -48,7 +51,7 @@ void text_disp_tile(Tile * cell){
 	if(cell->animals == NULL){
 		printf("No animal\n");
 	}else{
-		printf("Specie : %d\n", cell->animals->class);
+		printf("Specie : %d\n", cell->animals->specie);
 	}
 }
 
@@ -87,7 +90,6 @@ SDL_Surface * init_sdl(){
 		cell = SDL_CreateRGBSurface(SDL_HWSURFACE, (WINDOW_SIZE_X / TURF_M), (WINDOW_SIZE_Y / TURF_N), COLOR_DEPTH, 0, 0, 0, 0);
 		SDL_FillRect(cell, NULL, SDL_MapRGB(new_display->format, 17, 206, 112));
 	}
-    
     
 	return new_display;
 }
@@ -162,8 +164,6 @@ void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int i, int 
 	//printf("Displaying cell %d, %d\n", i, j);
 	char text_cell[50];			// The text to be written
 	SDL_Surface * text = NULL;	// The surface containing the text to write on the cell
-	SDL_Color black = {0, 0, 0, 255};
-	SDL_Color red = {255, 0, 0, 255};
 	SDL_Color color;
 	
 	// Calculates the x offset	
@@ -179,7 +179,6 @@ void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int i, int 
 	// We add the green rectangle
 	SDL_BlitSurface(cell, NULL, screen, &position);
 	
-	
 	/* Write text for the cell */
 		/* About the grass */
 		sprintf(text_cell, "Grss : %d", turf->array[i][j]->qty_grass);
@@ -193,13 +192,13 @@ void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int i, int 
 			 //sprintf(text_cell, "None");
 		}else{
 			/* The color depends on the first digit of the class of the animal */
-			if(turf->array[i][j]->animals->class / 100 == 2){
+			if(turf->array[i][j]->animals->specie == 2){
 				color = red;
 			}else{
-				color = black;
+				color = yellow;
 			}
 			
-			sprintf(text_cell, "Spc : %d", turf->array[i][j]->animals->class);
+			sprintf(text_cell, "Spc : %d", turf->array[i][j]->animals->specie);
 			text = TTF_RenderText_Solid(font, text_cell, color);
 			position.y+=FONT_SIZE;
 			SDL_BlitSurface(text, NULL, screen, &position);
@@ -208,7 +207,6 @@ void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int i, int 
 	SDL_FreeSurface(text);
 	
 }
-	
 
 
 // Ends the display

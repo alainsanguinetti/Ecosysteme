@@ -27,51 +27,58 @@ Field * createField(int m, int n){
 	return turf;
 }
 
-Characteristics * initCharacteristics(int n){
+Characteristics * initCharacteristics ( int n ) {
 	Characteristics * new = NULL;
-	int i,j;
+	int i;
 	
 	// Allocate n rows
-	new = (Characteristics *)malloc(sizeof(Characteristics));
-	new->array = (int **)malloc(10 * n * sizeof(int));
+	new = ( Characteristics * ) malloc ( sizeof(Characteristics) );
+	new->array = ( int ** ) malloc ( n * sizeof(int) );
 	
 	// For each specie creates corresponding characteristics
 	for(i = 0; i < n; i++){
-		
-		// For each specie, creates 10 stages of life : from 0 to 9
-		for(j = 0; j < 10; j++){
-			new->array[i * 10 + j] = (int *)malloc(NB_CHARACTERISTICS * sizeof(int));
-		
-			new->array[i * 10 + j][0] = 100 * (i + 1) + 10 * j; 	// ex : 120
-			
-			
-			new->array[i * 10 + j][1] = 1;	// moves radius
-			new->array[i * 10 + j][2] = 1;	// eat
-			new->array[i * 10 + j][3] = 5;	// dies after
-		}
+		new->array[i] = ( int * ) malloc ( NB_CHARACTERISTICS * sizeof(int) );
+
+		new->array[i][0] = i+1;	// specie
+		new->array[i][1] = 1;	// moves radius
+		new->array[i][2] = 1;	// eat
+		new->array[i][3] = 5;	// dies after
 	}
 	
-	new->m = 10 * n;
+	new->m = n;
 	
 	return new;
 }
 
-Animal * createAnimal(int class, Characteristics * species){
-	if(species != NULL){
+Animal * createAnimal ( int specie, Characteristics * species ) {
+	// Just in case, check that the species table exists
+	if ( species != NULL ) {
+		
+		// Allocates the new animal
 		Animal * new_animal = NULL;
-		new_animal = (Animal *)malloc(sizeof(Animal));
+		new_animal = ( Animal * ) malloc ( sizeof(Animal) );
 		int i = 0;
-		while (species->array[i][0] != class && i < species->m){
+
+		// printf ( "wow : %d\n", species->array[i][0] );
+
+		/* We look for the correct entry in the characteristics table */
+		while ( i < species->m - 1 && species->array[i][0] != specie ) {
 			i++;
 		}
-		// printf("wow : %d\n",species->array[i][0]);
-		new_animal->class = species->array[i][0];
+
+		// printf("wow, i = %d\n",i);
 		
+		/* Set corresponding characteristics */
+		new_animal->specie = species->array[i][0];
 		new_animal->moves_radius = species->array[i][1];
 		new_animal->eat = species->array[i][2];
 		new_animal->dies_after = species->array[i][3];
+		new_animal->age = 0;
+		
+		
 		return new_animal;
-	}else{
+
+	} else {
 		return NULL;
 	}
 }
@@ -79,7 +86,7 @@ Animal * createAnimal(int class, Characteristics * species){
 int addAnimal(Animal * this_animal, Tile * that_place){
 	
 	// Check if tile is available
-	if(that_place->animals == NULL){
+	if ( that_place->animals == NULL ) {
 
 		// if not, tile points to us and we point to what was there
 		that_place->animals = this_animal;
@@ -90,11 +97,11 @@ int addAnimal(Animal * this_animal, Tile * that_place){
 	}
 }
 
-Animal * removeAnimal(int class, Tile * that_place){
+Animal * removeAnimal(int specie, Tile * that_place){
 	Animal * this_animal = NULL;
 	
 	// Check if animal is present
-	if(that_place->animals->class == class){
+	if(that_place->animals->specie == specie){
 		// if yes, select the first animal
 		this_animal = that_place->animals;
 		
@@ -112,9 +119,9 @@ int moveAnimal(int class, int x, int y, int next_x, int next_y, Field * turf){
 	Tile * start = NULL;
 	Tile * end = NULL;
 	Animal * this_animal = NULL;
-	
+
 	//printf("Trying to move an animal of class %d, from tile %d, %d to tile %d, %d\n", class, x, y, next_x, next_y);
-	
+
 	// Get the adresses of start tile and end tile
 	// Check if they belong to the field
 	if(x < turf->m 
@@ -123,19 +130,19 @@ int moveAnimal(int class, int x, int y, int next_x, int next_y, Field * turf){
 			&& next_y < turf->n 
 			&& next_x >= 0 
 			&& next_y >= 0){
-				
+
 		// if yes, remember the references
 		start = turf->array[x][y];
 		end = turf->array[next_x][next_y];
-	
+
 		// Then remove animal
 		this_animal = removeAnimal(class, start);
-		
+
 		// if animal is removed
 		if(this_animal != NULL){
 			// add animal to the next place
 			result = addAnimal(this_animal, end);
-			
+
 			if(result == 0){
 				addAnimal(this_animal, start);
 			}else{
@@ -145,6 +152,39 @@ int moveAnimal(int class, int x, int y, int next_x, int next_y, Field * turf){
 	}
 
 	return result;
+}
+
+// Prints the number of each animats
+void printStatistics ( Field * turf ) {
+	int k = 0;			// Counter on species
+	int i, j;			// Counter on array
+	int nb_animats = 0;	// Counter on animats
+
+	// For every kind of animats, we loop through the field and print the number we found
+	while ( k < turf->species->m ) {
+		for ( i = 0 ; i < turf->m ; i++ ) {
+			for ( j = 0 ; j < turf->n ; j++ ) {
+
+				// If there is animats of the specie we are currently counting, we increment the counter
+				if ( turf->array[i][j]->animals != NULL 
+						&& turf->array[i][j]->animals->specie == k + 1 ) {
+					
+					printf ( "Animats of class %d, k = %d\n", turf->array[i][j]->animals->specie, k + 1 );
+					
+					nb_animats++;
+				}
+
+			}
+		}
+
+		printf ( "There are %d animats of specie %d\n", nb_animats, (k + 1) );
+
+		// Counter reset
+		nb_animats = 0;
+
+		// Move on to the next specie
+		k++;
+	}
 }
 
 void deleteCharacteristics(Characteristics * my_charact){
@@ -178,7 +218,7 @@ void deleteTile(Tile * my_tile){
 
 void deleteAnimal(Animal * my_animal){
 	if(my_animal != NULL){
-		printf("Deleting animal of class %d\n", my_animal->class);
+		printf("Deleting animal from specie %d\n", my_animal->specie);
 		free(my_animal);
 	}
 }

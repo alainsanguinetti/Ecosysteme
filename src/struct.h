@@ -6,7 +6,8 @@
 
 typedef struct animal Animal;
 struct animal {
-	int class;			// first digit : specie, second digit : age, third digit : mutation/subspecie !
+	int specie;			// Type of animal
+	int age;			// Age of the animal
 	int moves_radius;
 	int eat;			// Number of lower rank animals eaten by day
 	int dies_after;		// Number of fasting days in a row allowed
@@ -49,7 +50,7 @@ Animal * removeAnimal(int class, Tile * that_place);
 int moveAnimal(int class, int x, int y, int next_x, int next_y, Field * turf);
 
 // Counts the animals
-void countAnimals(Field * turf);
+void printStatistics ( Field * turf );
 
 // Functions to delete the structures
 void deleteCharacteristics(Characteristics * my_charact);

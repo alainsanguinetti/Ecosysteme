@@ -11,10 +11,33 @@ void initial_state (Field *turf, Characteristics * species){
 	int j;
 	for (i=0;i<(turf->n)/3;i++){
 		for(j=((turf->m) * 2/3);j<turf->m;j++){
-			addAnimal(createAnimal(100, species), turf->array[i][j]);
-			addAnimal(createAnimal(200, species), turf->array[j][i]);	
+			addAnimal(createAnimal(1, species), turf->array[i][j]);
+			addAnimal(createAnimal(2, species), turf->array[i][j]);
+	
 		}
-	}	
+	}
+}
+
+void advanced_field_initialization ( Field * turf, Characteristics * species ) {
+	int nb_animats;
+	int i, j;
+
+	// Asks for the number of each animal to put
+	printf("Please enter the number of animats wanted : ");
+	scanf("%d", &nb_animats);
+	
+	// Put the preys and predators at opposite corners 
+	for (i=0;i<(turf->n)/3;i++){
+		for(j=((turf->m) * 2/3);j<turf->m;j++){
+			if(nb_animats > 0) {
+				addAnimal(createAnimal(1, species), turf->array[i][j]);
+				addAnimal(createAnimal(2, species), turf->array[j][i]);
+				nb_animats--;
+			} else {
+				break;
+			}
+		}
+	}
 }
 
 
@@ -37,7 +60,7 @@ void Move_Bitch_GetOut_The_Way(Field *turf){
 				
 				// printf("i = %d, j = %d, i+r = %d, j+r2 = %d\n", i, j, i+r, j+r2);
 				
-				moveAnimal(turf->array[i][j]->animals->class, i, j, i+r, j+r2, turf);
+				moveAnimal(turf->array[i][j]->animals->specie, i, j, i+r, j+r2, turf);
 			}
 		}
 	}
@@ -45,18 +68,25 @@ void Move_Bitch_GetOut_The_Way(Field *turf){
 	// printf("Done moving all animals\n");
 }
 
-void day_simulation(Field *turf){
-	The_Grass_Is_Greener_When_You_Water_It(turf);
-	Sexy_Time(turf);
-	Eat_Dat_Motherfudger(turf);
-	Shave_Dat_Grass(turf);
-	Move_Bitch_GetOut_The_Way(turf);
-	Time_Is_A_Bitch(turf);
+void day_simulation ( Field * turf ) {
+	The_Grass_Is_Greener_When_You_Water_It ( turf );
+	
+	Sexy_Time ( turf );
+	
+	Eat_Dat_Motherfudger ( turf );
+	
+	Shave_Dat_Grass ( turf );
+	
+	Move_Bitch_GetOut_The_Way ( turf );
+	
+	Time_Is_A_Bitch ( turf );
+	
+	printStatistics ( turf );
 }
 
-void days_simulation(int nb_days, Field * turf, SDL_Surface * screen){
+void days_simulation ( int nb_days, Field * turf, SDL_Surface * screen ) {
 	int i;
-	for(i=0;i<nb_days;i++){
+	for ( i=0 ; i<nb_days ; i++ ) {
 		day_simulation(turf);
 		user_disp_field(turf, screen, SDL);
 	}
@@ -94,7 +124,7 @@ void Eat_Dat_Motherfudger(Field *turf){
 							&& turf->array[i+a][j+b]->animals != NULL
 							&& b != 0
 							&& a != 0
-							&& turf->array[i][j]->animals->class/100 > turf->array[i+a][j+b]->animals->class/100){
+							&& turf->array[i][j]->animals->specie > turf->array[i+a][j+b]->animals->specie){
 								
 						deleteAnimal(turf->array[i+a][j+b]->animals);
 						turf->array[i+a][j+b]->animals = NULL;
@@ -119,8 +149,8 @@ void Shave_Dat_Grass(Field *turf){
 	int j;
 	for (i=0;i<turf->n;i++){
 		for(j=0;j<turf->m;j++){
-			if(turf->array[i][j]->animals != NULL && turf->array[i][j]->animals->class/100 == 1 && turf->array[i][j]->qty_grass > 1){
-				turf->array[i][j]->qty_grass = turf->array[i][j]->qty_grass - 1;
+			if(turf->array[i][j]->animals != NULL && turf->array[i][j]->animals->specie == 1 && turf->array[i][j]->qty_grass > 1){
+				turf->array[i][j]->qty_grass--;
 			}
 		}
 	}
@@ -135,12 +165,15 @@ void Time_Is_A_Bitch(Field *turf){
 		for(j=0;j<turf->m;j++){
 			if(turf->array[i][j]->animals != NULL){
 				//printf("Animal is aged %d\n", (turf->array[i][j]->animals->class/10)%10);
-				if((turf->array[i][j]->animals->class/10)%10 < 9){
-					turf->array[i][j]->animals->class = turf->array[i][j]->animals->class + 10;
-				}
-				else{
+				
+				// If the animal is young enough, he grows old
+				if ( turf->array[i][j]->animals->age < 9 ) {
+					turf->array[i][j]->animals->age++;
+					
+				// Else he dies
+				} else {
 					printf("It's time to die\n");
-					deleteAnimal(removeAnimal(turf->array[i][j]->animals->class, turf->array[i][j]));
+					deleteAnimal ( removeAnimal(turf->array[i][j]->animals->specie, turf->array[i][j]) );
 					turf->array[i][j]->animals = NULL;
 				}
 			}
@@ -159,19 +192,26 @@ void Sexy_Time(Field *turf){
 	Animal * baby = NULL;
 
 	for (i=0;i<turf->m;i++){
+		
 		for(j=0;j<turf->n;j++){
-			if (turf->array[i][j]->animals != NULL && (turf->array[i][j]->animals->class%100)/10 > PUBERTY ){
+			
+			// If there is an animal that is old enough to have babies
+			if (turf->array[i][j]->animals != NULL 
+				&& turf->array[i][j]->animals->age > PUBERTY ){
+					
+				// Look for mates
 				a = -1;
+				
 				while(a<2){
 					b = -1;
 					while(b<2 && a != 0 && (i+a)>=0 && (i+a)<turf->m){
 						if ((j+b)>=0 && (j+b)<turf->m 
 								&& b != 0
 								&& turf->array[i+a][j+b]->animals != NULL 
-								&& turf->array[i][j]->animals->class/100 == turf->array[i+a][j+b]->animals->class/100){
+								&& turf->array[i][j]->animals->specie == turf->array[i+a][j+b]->animals->specie){
 									
 							printf("Youhou !!\n");
-							baby = createAnimal((turf->array[i][j]->animals->class/100)*100 , turf->species);
+							baby = createAnimal ( turf->array[i][j]->animals->specie , turf->species );
 							
 							baby_delivered = 0;
 							
@@ -214,12 +254,3 @@ void Sexy_Time(Field *turf){
 		}
 	}
 }
-
-
-
-
-
-
-
-
-		

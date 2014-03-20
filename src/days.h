@@ -11,6 +11,10 @@
 
 	// Set the initial state of the field
 	void initial_state (Field *turf, Characteristics * species);
+	
+	// More featured field initialization
+	void advanced_field_initialization ( Field * turf, Characteristics * species );
+	
 	//Moves Preys and Predators
 	void Move_Bitch_GetOut_The_Way(Field *turf);
 	// Frames the simulation : simulates nb_days days
