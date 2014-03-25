@@ -1,5 +1,44 @@
 #include "struct.h"
 
+// ### ### ### ### ### Main program utilities
+
+// Empty function to display nothing
+int quietprint ( __const char *__restrict __format, ... ){
+	return EXIT_SUCCESS;
+}
+
+// Read the arguments passed to the program. Returns true if none or if correct arguments.
+bool readArguments ( int argc, char * argv[] ) {
+	// No arguments case
+	if (argc == 1) {
+		// So let's be quiet !
+		verbosemode = QUIET;
+		return true;
+	}
+	// If there is a second argument asking to be verbose
+	else if (strcmp(argv[1], "-v") == 0) { /* Process optional arguments. */
+		// Entering verbose mode
+		verbosemode = VERBOSE;
+		
+		// So let's be verbose !
+		myPrintf[verbosemode]("Entering verbose mode\n");
+		
+		// Execution of the program may continue
+		return true;
+	}
+	// If it does not matches the previous cases, then this is an error.
+	else {
+		// Display usage statement
+		fprintf(stderr, "\nusage:\tfilename [-v]\n\t-v asks for verbose mode\n\n");
+		
+		// And stop execution of program
+		return false;
+		// exit(EXIT_FAILURE);
+	}
+}
+
+// ### ### ### ### ### Field and animals utilities
+
 Field * createField(int m, int n){
 	Field * turf = NULL;
 	int i, j;
@@ -200,6 +239,9 @@ void deleteCharacteristics(Characteristics * my_charact){
 
 void deleteField(Field * turf){
 	int i, j;
+	
+	deleteCharacteristics(turf->species);
+	
 	for(i=0; i < turf->m; i++){
 		for(j=0; j < turf->n; j++){
 			deleteTile(turf->array[i][j]);

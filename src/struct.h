@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <SDL/SDL.h>
 
 typedef struct animal Animal;
 struct animal {
@@ -25,11 +28,32 @@ typedef struct characteristics {
 } Characteristics;
 
 typedef struct field {
+	int nb_days_to_simulate;
 	Characteristics * species;
 	Tile *** array;
 	int m;
 	int n;
 } Field;
+
+
+// ### ### ### ### ### Main program utilities
+
+// Array of function pointers : creates two levels of verbosity
+int verbosemode;
+#define QUIET 0
+#define VERBOSE 1
+int (*myPrintf[2]) (__const char *__restrict __format, ...);
+
+// Empty function to display nothing
+int quietprint ( __const char *__restrict __format, ... );
+
+// Read the arguments passed to the program. Returns true if none or if correct arguments.
+bool readArguments ( int argc, char * argv[] );
+
+
+
+
+// ### ### ### ### ### Field and animals utilities
 
 // Creates a field of size m * n
 Field * createField(int m, int n);

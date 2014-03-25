@@ -1,31 +1,36 @@
 #include "./src/days.h"
 #include "./disp/disp.h"
 
-int main()
+int main(int argc, char *argv[])
 {
-	int nb_days;
+	bool running = false;
+	
+	// Two verbosity levels
+	myPrintf[QUIET] = quietprint;
+	myPrintf[VERBOSE] = printf;
+	
+	// Before continuing, read the arguments
+	running = readArguments( argc, argv );
 
-	// Init graphics
-	SDL_Surface * screen = NULL;
-	screen = init_sdl();
+	// If the arguments are correct, start a simulation
+	while ( running ) {
 
-	Field * Test = createField(TURF_M, TURF_N);
-	Characteristics * test = initCharacteristics(2);
-	Test->species = test;
+		myPrintf[verbosemode] ( "main: running is true\n" );
 
-	printf("Enter the number of days : ");
-	scanf("%d", &nb_days);
+		// Init graphics
+		SDL_Surface * screen = NULL;
+		screen = init_sdl();
 
-	advanced_field_initialization ( Test, test );
-	days_simulation ( nb_days, Test, screen );
+		// Simulates
+		simulation ( screen );
 
-	deleteCharacteristics(test);
-
-	deleteField(Test);
-
-	// End of graphics
-	SDL_FreeSurface(screen);
-	quit_sdl();
+		// End of graphics
+		SDL_FreeSurface(screen);
+		quit_sdl();
+		
+		// Quit running mode
+		running = false;
+	};
 
 	return 0;
 }

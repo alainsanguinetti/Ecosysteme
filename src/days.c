@@ -1,24 +1,55 @@
 #include "days.h"
 
-
-// Put preys and predators in opposite corners (can be modified if necessary)
-void initial_state (Field *turf, Characteristics * species){
-	printf("Setting initial state\n");
+// Function that set up, run, and close a simulation
+void simulation (SDL_Surface * screen) {
+	Field * turf = NULL;
 	
-	turf->species = species;
+	// Set up the simulation
+	printf("\n1 Setting up the simulation\n");
+	turf = simulationSetUp();
 	
-	int i;
-	int j;
-	for (i=0;i<(turf->n)/3;i++){
-		for(j=((turf->m) * 2/3);j<turf->m;j++){
-			addAnimal(createAnimal(1, species), turf->array[i][j]);
-			addAnimal(createAnimal(2, species), turf->array[i][j]);
+	// Run the simulation
+	printf("\n2 Running the simulation\n");
+	days_simulation ( turf, screen );
 	
-		}
-	}
+	// Close the simulation
+	printf ( "\n3 Closing the simulation\n" );
+	deleteField(turf);
 }
 
-void advanced_field_initialization ( Field * turf, Characteristics * species ) {
+// Set up a simulation environment
+Field * simulationSetUp () {
+	int n = 1; 	// size of the field
+	int days = 0;
+	// int disp_mode = 0;
+	
+	// Characteristics
+	Characteristics * species = initCharacteristics(2);
+	
+	// Field + animals
+	printf("Field is a square of size n x n, please enter n : ");
+	scanf("%d", &n);
+	Field * turfSetUp = createField ( n, n );
+	advancedFieldInitialization( turfSetUp, species );
+	
+	// Days
+	printf("Enter the number of days : ");
+	scanf("%d", &days);
+	turfSetUp->nb_days_to_simulate = days;
+	
+	/*
+	// Graphics
+	printf ( "Do you want graphic display ?\n0: no\t1: yes\nYou choose : " );
+	scanf("%d", &disp_mode);
+	if (
+	*/
+	
+	return turfSetUp;
+}
+
+
+// Full featured field initialization
+void advancedFieldInitialization ( Field * turf, Characteristics * species ) {
 	int nb_animats;
 	int i, j;
 
@@ -38,8 +69,28 @@ void advanced_field_initialization ( Field * turf, Characteristics * species ) {
 			}
 		}
 	}
+	
+	// Add the species table to the field
+	turf->species = species;
 }
 
+
+// Put preys and predators in opposite corners (can be modified if necessary)
+void initial_state (Field *turf, Characteristics * species){
+	printf("Setting initial state\n");
+	
+	turf->species = species;
+	
+	int i;
+	int j;
+	for (i=0;i<(turf->n)/3;i++){
+		for(j=((turf->m) * 2/3);j<turf->m;j++){
+			addAnimal(createAnimal(1, species), turf->array[i][j]);
+			addAnimal(createAnimal(2, species), turf->array[i][j]);
+	
+		}
+	}
+}
 
 void Move_Bitch_GetOut_The_Way(Field *turf){
 	printf("Moving all animals\n");
@@ -84,9 +135,9 @@ void day_simulation ( Field * turf ) {
 	printStatistics ( turf );
 }
 
-void days_simulation ( int nb_days, Field * turf, SDL_Surface * screen ) {
+void days_simulation ( Field * turf, SDL_Surface * screen ) {
 	int i;
-	for ( i=0 ; i<nb_days ; i++ ) {
+	for ( i = turf->nb_days_to_simulate ; i > 0 ; i-- ) {
 		day_simulation(turf);
 		user_disp_field(turf, screen, SDL);
 	}
