@@ -14,8 +14,7 @@ int main(int argc, char *argv[])
 
 	// If the arguments are correct, start a simulation
 	while ( running ) {
-
-		myPrintf[verbosemode] ( "main: running is true\n" );
+		myPrintf[ verbosemode ] ( "main : running is true\n" );
 
 		// Init graphics
 		SDL_Surface * screen = NULL;
@@ -27,7 +26,7 @@ int main(int argc, char *argv[])
 		// End of graphics
 		SDL_FreeSurface(screen);
 		quit_sdl();
-		
+
 		// Quit running mode
 		running = false;
 	};

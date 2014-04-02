@@ -3,9 +3,10 @@
 
 static TTF_Font * font = NULL;
 static SDL_Surface * cell = NULL;
-	SDL_Color black = {0, 0, 0, 255};
-	SDL_Color red = {255, 0, 0, 255};
-	SDL_Color yellow = {255, 255, 0, 255};
+
+	SDL_Surface * imagePredateur = NULL, * imageProie = NULL, * imageHerbe1 = NULL, * imageHerbe2 = NULL;
+	SDL_Surface * imagePredatorBaby = NULL, * imagePreyOld = NULL;
+	SDL_Rect position;
 
 // When the user wants to display the field in the specified mode (SDL / text)
 void user_disp_field(Field * turf, SDL_Surface * screen, int mode){
@@ -90,6 +91,14 @@ SDL_Surface * init_sdl(){
 		cell = SDL_CreateRGBSurface(SDL_HWSURFACE, (WINDOW_SIZE_X / TURF_M), (WINDOW_SIZE_Y / TURF_N), COLOR_DEPTH, 0, 0, 0, 0);
 		SDL_FillRect(cell, NULL, SDL_MapRGB(new_display->format, 17, 206, 112));
 	}
+	
+	// Load the images
+	imageHerbe1 = SDL_LoadBMP("./disp/img/herbe1.bmp");
+	imageHerbe2 = SDL_LoadBMP("./disp/img/herbe2.bmp");
+	imagePredateur = SDL_LoadBMP("./disp/img/predateur2.bmp");
+	imagePredatorBaby = SDL_LoadBMP("./disp/img/predateur_jeune1.bmp");
+	imageProie = SDL_LoadBMP("./disp/img/prey.bmp");
+	imagePreyOld = SDL_LoadBMP("./disp/img/proie_vieille1.bmp");
     
 	return new_display;
 }
@@ -161,13 +170,96 @@ void sdl_disp_line(Field * turf, SDL_Surface * screen, int i, TTF_Font * font){
 // Displays a cell, with SDL
 void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int i, int j, TTF_Font * font){
 	
-	//printf("Displaying cell %d, %d\n", i, j);
+	Animal * current_animal = NULL;
+
+	myPrintf [ verbosemode ]("Displaying cell %d, %d\n", i, j);
+
+	// Calculates the x offset	
+	int offset_x = j * (WINDOW_SIZE_X / turf->m);
+
+	// Define the position
+	position.x = offset_x;
+	position.y = offset_y;
+
+	// Grass
+	if ( turf->array[i][j]->qty_grass < 4 ) {
+		SDL_BlitSurface( imageHerbe1, NULL, screen, &position );
+	} else {
+		SDL_BlitSurface( imageHerbe2, NULL, screen, &position );
+	}
+	
+	SDL_Flip ( screen );
+
+	// Animal
+	if (turf->array[i][j]->animals != NULL ) {
+		current_animal = turf->array[i][j]->animals;
+		
+		if ( current_animal->specie == 1 ) {
+			if  ( current_animal->age > PUBERTY ) {
+				SDL_BlitSurface( imagePreyOld, NULL, screen, &position );
+			}
+			else {
+				SDL_BlitSurface( imageProie, NULL, screen, &position );
+			}
+		} 
+		else if (current_animal->specie == 2) {
+			if ( current_animal->age < PUBERTY ) {
+				SDL_BlitSurface( imagePredatorBaby, NULL, screen, &position );
+			}
+			else {
+				SDL_BlitSurface( imagePredateur, NULL, screen, &position );
+			}
+		}
+	}
+}
+
+
+// Ends the display
+void quit_sdl(){
+	
+	// Close cell
+	SDL_FreeSurface(cell);
+	
+	// Close images
+	SDL_FreeSurface ( imageHerbe1 );
+	SDL_FreeSurface ( imagePredateur );
+	SDL_FreeSurface ( imageProie );
+	SDL_FreeSurface ( imageHerbe2 );
+	
+	// Close font
+	TTF_CloseFont(font);
+	
+	// End of TTF
+	TTF_Quit();
+	
+	// End of use of SDL
+	SDL_Quit();	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* For text display
+	
+	SDL_Color black = {0, 0, 0, 255};
+	SDL_Color red = {255, 0, 0, 255};
+	SDL_Color yellow = {255, 255, 0, 255};
+
 	char text_cell[50];			// The text to be written
 	SDL_Surface * text = NULL;	// The surface containing the text to write on the cell
 	SDL_Color color;
-	
-	// Calculates the x offset	
-	int offset_x = j * (WINDOW_SIZE_X / turf->m);
 	
 	// Add a green rectangle to represent grass
 	
@@ -179,19 +271,19 @@ void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int i, int 
 	// We add the green rectangle
 	SDL_BlitSurface(cell, NULL, screen, &position);
 	
-	/* Write text for the cell */
-		/* About the grass */
+	// Write text for the cell
+		// About the grass
 		sprintf(text_cell, "Grss : %d", turf->array[i][j]->qty_grass);
 		text = TTF_RenderText_Solid(font, text_cell, black);
 		position.x+=10;
 		position.y+=10;
 		SDL_BlitSurface(text, NULL, screen, &position);
 
-		/* About the animal */
+		// About the animal
 		if(turf->array[i][j]->animals == NULL){
 			 //sprintf(text_cell, "None");
 		}else{
-			/* The color depends on the first digit of the class of the animal */
+			// The color depends on the first digit of the class of the animal
 			if(turf->array[i][j]->animals->specie == 2){
 				color = red;
 			}else{
@@ -203,24 +295,4 @@ void sdl_disp_cell(Field * turf, SDL_Surface * screen, int offset_y, int i, int 
 			position.y+=FONT_SIZE;
 			SDL_BlitSurface(text, NULL, screen, &position);
 		}
-		
-	SDL_FreeSurface(text);
-	
-}
-
-
-// Ends the display
-void quit_sdl(){
-	
-	// Close cell
-	SDL_FreeSurface(cell);
-	
-	// Close font
-	TTF_CloseFont(font);
-	
-	// End of TTF
-	TTF_Quit();
-	
-	// End of use of SDL
-	SDL_Quit();	
-}
+	*/

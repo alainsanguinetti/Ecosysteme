@@ -77,7 +77,7 @@ void advancedFieldInitialization ( Field * turf, Characteristics * species ) {
 
 // Put preys and predators in opposite corners (can be modified if necessary)
 void initial_state (Field *turf, Characteristics * species){
-	printf("Setting initial state\n");
+	printf ( "Setting initial state\n" );
 	
 	turf->species = species;
 	
@@ -93,7 +93,7 @@ void initial_state (Field *turf, Characteristics * species){
 }
 
 void Move_Bitch_GetOut_The_Way(Field *turf){
-	printf("Moving all animals\n");
+	myPrintf [ verbosemode ]("Moving all animals\n");
 	
 	int i;
 	int j;
@@ -116,7 +116,7 @@ void Move_Bitch_GetOut_The_Way(Field *turf){
 		}
 	}
 	
-	// printf("Done moving all animals\n");
+	myPrintf [ verbosemode ] ("Done moving all animals\n");
 }
 
 void day_simulation ( Field * turf ) {
@@ -144,7 +144,7 @@ void days_simulation ( Field * turf, SDL_Surface * screen ) {
 }
 
 void The_Grass_Is_Greener_When_You_Water_It(Field *turf){
-	printf("Growing grass everywhere\n");
+	myPrintf [ verbosemode ]("Growing grass everywhere\n");
 	
 	int i;
 	int j;
@@ -157,44 +157,58 @@ void The_Grass_Is_Greener_When_You_Water_It(Field *turf){
 }
 
 void Eat_Dat_Motherfudger(Field *turf){
-	printf("Eating animals\n");
+	myPrintf [ verbosemode ]("Eating animals\n");
 	
 	int i;
 	int j;
 	int a, b;
+	bool has_eaten = false;
+	
 	for (i=0;i<turf->m;i++){
 		for(j=0;j<turf->n;j++){
-			a = -1;
-			while(a<2 && turf->array[i][j]->animals != NULL){
-				
-				b = -1;
-				
-				while(b<2 && (i+a)>=0 && (i+a)<turf->m){
-								
-					if ((j+b)>=0 && (j+b)<turf->n 
-							&& turf->array[i+a][j+b]->animals != NULL
-							&& b != 0
-							&& a != 0
-							&& turf->array[i][j]->animals->specie > turf->array[i+a][j+b]->animals->specie){
-								
-						deleteAnimal(turf->array[i+a][j+b]->animals);
-						turf->array[i+a][j+b]->animals = NULL;
-						
-						// moveAnimal(turf->array[i][j]->animals->class,i,j,i+a,j+b,turf);
-						printf("yummy!!!\n");
+			if ( turf->array[i][j]->animals != NULL ) {
+				a = -1;
+				while ( a < 2 ) {
+					
+					b = -1;
+					
+					while(b<2 && (i+a)>=0 && (i+a)<turf->m){
+									
+						if ((j+b)>=0 && (j+b)<turf->n 
+								&& turf->array[i+a][j+b]->animals != NULL
+								&& b != 0
+								&& a != 0
+								&& turf->array[i][j]->animals->specie > turf->array[i+a][j+b]->animals->specie){
+									
+							deleteAnimal(turf->array[i+a][j+b]->animals);
+							turf->array[i+a][j+b]->animals = NULL;
+
+							has_eaten = true;
+
+							turf->array[i][j]->animals->dies_after = DIES_AFTER;
+
+							myPrintf [ verbosemode ] ("yummy!!!\n");
+						}
+						b++;
 					}
-					b++;
+					a++;
 				}
-				a++;
+
+				if ( !has_eaten ) { 
+					turf->array[i][j]->animals->dies_after--;
+				}
 			}
 		}
 	}
 	
-	printf("Animals are done eating\n");
+
+		
+
+	myPrintf [ verbosemode ] ("Animals are done eating\n");
 }
 
 void Shave_Dat_Grass(Field *turf){
-	printf("Eating the grass\n");
+	myPrintf [ verbosemode ] ("Eating the grass\n");
 	
 	int i;
 	int j;
@@ -208,22 +222,22 @@ void Shave_Dat_Grass(Field *turf){
 }
 
 void Time_Is_A_Bitch(Field *turf){
-	printf("Checking for animals too old\n");
+	myPrintf [ verbosemode ] ( "Checking for animals too old\n" );
 	
 	int i;
 	int j;
 	for (i=0;i<turf->n;i++){
 		for(j=0;j<turf->m;j++){
 			if(turf->array[i][j]->animals != NULL){
-				//printf("Animal is aged %d\n", (turf->array[i][j]->animals->class/10)%10);
+				myPrintf [ verbosemode ] ( "Animal is aged %d\n", turf->array[i][j]->animals->age );
 				
-				// If the animal is young enough, he grows old
-				if ( turf->array[i][j]->animals->age < 9 ) {
+				// If the animal is young enough and has eaten
+				if ( turf->array[i][j]->animals->age < 9 && turf->array[i][j]->animals->dies_after > 0 ) {
 					turf->array[i][j]->animals->age++;
 					
 				// Else he dies
 				} else {
-					printf("It's time to die\n");
+					myPrintf [ verbosemode ] ("It's time to die\n");
 					deleteAnimal ( removeAnimal(turf->array[i][j]->animals->specie, turf->array[i][j]) );
 					turf->array[i][j]->animals = NULL;
 				}
@@ -261,7 +275,7 @@ void Sexy_Time(Field *turf){
 								&& turf->array[i+a][j+b]->animals != NULL 
 								&& turf->array[i][j]->animals->specie == turf->array[i+a][j+b]->animals->specie){
 									
-							printf("Youhou !!\n");
+							myPrintf [ verbosemode ] ("Youhou !!\n");
 							baby = createAnimal ( turf->array[i][j]->animals->specie , turf->species );
 							
 							baby_delivered = 0;
@@ -282,7 +296,7 @@ void Sexy_Time(Field *turf){
 												
 										baby_delivered = addAnimal(baby, turf->array[i+c][j+d]);
 										if(baby_delivered == 1){
-											printf("Baby delivered\n");
+											myPrintf [ verbosemode ] ("Baby delivered\n");
 										}
 										
 										d++;

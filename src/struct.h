@@ -7,6 +7,8 @@
 #include <string.h>
 #include <SDL/SDL.h>
 
+#define DIES_AFTER 8
+
 typedef struct animal Animal;
 struct animal {
 	int specie;			// Type of animal

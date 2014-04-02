@@ -81,7 +81,7 @@ Characteristics * initCharacteristics ( int n ) {
 		new->array[i][0] = i+1;	// specie
 		new->array[i][1] = 1;	// moves radius
 		new->array[i][2] = 1;	// eat
-		new->array[i][3] = 5;	// dies after
+		new->array[i][3] = DIES_AFTER;	// dies after
 	}
 	
 	new->m = n;
